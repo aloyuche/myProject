@@ -1,14 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
 const AuthUser = require("./routes/auths");
 const Hotel = require("./routes/hotels");
+const cookieParse = require("cookie-parse");
 // const Room = require("./routes/rooms");
 // const User = require("./routes/users");
 
 const app = express();
 require("dotenv").config();
 
+app.use(cookieParse());
 app.use(express.json());
 
 app.use("/api/auth", AuthUser);
