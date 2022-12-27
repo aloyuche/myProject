@@ -1,6 +1,7 @@
 const Users = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const createError = require("../utils/error");
 
 // Error Handling
 const ErrorHandler = (err) => {
@@ -41,7 +42,7 @@ const createToken = (id) => {
   });
 };
 
-module.exports.register = async (req, res) => {
+module.exports.register = async (req, res, next) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
@@ -55,8 +56,7 @@ module.exports.register = async (req, res) => {
     res.status(200).send("New User Created");
     res.json({ newUser });
   } catch (err) {
-    const errors = ErrorHandler(err);
-    res.status(400).json({ errors });
+    next(err);
   }
 };
 
@@ -71,7 +71,7 @@ module.exports.login = async (req, res, next) => {
       req.body.password,
       user.password
     );
-    if (!isPasswordCorrect) return next(ErrorHandler(400, "Wrong Password"));
+    if (!isPasswordCorrect) return next(createError(400, "Wrong Password"));
 
     const token = jwt.sign(
       { id: user._id, isAdmin: user.isAdmin },
